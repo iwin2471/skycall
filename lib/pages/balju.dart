@@ -14,7 +14,7 @@ class _BaljuPageState extends State<BaljuPage> {
       {
         "suppliers": [],
         "_id": "5bb5a604a7c56360bee3d82c",
-        "title": "앗 이작업은 무료로 해드립니다",
+        "title": "발주입니다",
         "location": 1,
         "work_start_date": "2018-09-30T15:00:00.000Z",
         "work_end_date": "2018-10-24T15:00:00.000Z",

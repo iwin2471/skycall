@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/auth.dart';
@@ -28,13 +27,6 @@ class _AuthPageState extends State<AuthPage> {
       decoration: InputDecoration(
           labelText: 'ID', filled: true, fillColor: Colors.white),
       keyboardType: TextInputType.emailAddress,
-      validator: (String value) {
-        // if (value.isEmpty ||
-        //     !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-        //         .hasMatch(value)) {
-        //   return 'Please enter a valid email';
-        // }
-      },
       onSaved: (String value) {
         _formData['ID'] = value;
       },
@@ -58,35 +50,9 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildPasswordConfirmTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: 'Confirm Password', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      validator: (String value) {
-        if (_passwordTextController.text != value) {
-          return 'Passwords do not match.';
-        }
-      },
-    );
-  }
-
-  Widget _buildAcceptSwitch() {
-    return SwitchListTile(
-      value: _formData['acceptTerms'],
-      onChanged: (bool value) {
-        setState(() {
-          _formData['acceptTerms'] = value;
-        });
-      },
-      title: Text('Accept Terms'),
-    );
-  }
-
   void _submitForm(Function authenticate) async {
-    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
-      return;
-    }
+    if (!_formKey.currentState.validate()) return;
+
     _formKey.currentState.save();
     Map<String, dynamic> successInformation;
     successInformation =
@@ -141,23 +107,8 @@ class _AuthPageState extends State<AuthPage> {
                     SizedBox(
                       height: 10.0,
                     ),
-                    _authMode == AuthMode.Signup
-                        ? _buildPasswordConfirmTextField()
-                        : Container(),
-                    _buildAcceptSwitch(),
                     SizedBox(
                       height: 10.0,
-                    ),
-                    FlatButton(
-                      child: Text(
-                          '${_authMode == AuthMode.Signin ? '회원가입' : '로그인'}으로 바꾸기'),
-                      onPressed: () {
-                        setState(() {
-                          _authMode = _authMode == AuthMode.Signin
-                              ? AuthMode.Signup
-                              : AuthMode.Signin;
-                        });
-                      },
                     ),
                     SizedBox(
                       height: 10.0,
@@ -169,9 +120,7 @@ class _AuthPageState extends State<AuthPage> {
                             ? CircularProgressIndicator()
                             : RaisedButton(
                                 textColor: Colors.white,
-                                child: Text(_authMode == AuthMode.Signin
-                                    ? 'SIGNIN'
-                                    : 'SIGNUP'),
+                                child: Text('로그인'),
                                 onPressed: () =>
                                     _submitForm(model.authenticate),
                               );

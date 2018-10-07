@@ -39,12 +39,8 @@ class SigninModel extends AuthUserModel {
         headers: {'Content-type': "application/json"},
         body: json.encode(signinData),
       );
-    } else {
-      response = await http.post(
-        requestUrls.mainurl + requestUrls.signUp,
-        body: json.encode(signinData),
-      );
     }
+
     final Map<String, dynamic> responseData = json.decode(response.body);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String message = 'Something went wrong.';
@@ -79,6 +75,51 @@ class SigninModel extends AuthUserModel {
       _authenticatedUser = ClientUser(id: userId, phone: phone);
       notifyListeners();
     }
+  }
+}
+
+class SignupModel extends AuthUserModel {
+  RequestUrls requestUrls = new RequestUrls();
+
+  ClientUser get user {
+    return _authenticatedUser;
+  }
+
+  Future<Map<String, dynamic>> signUp(Map<String, dynamic> signupData) async {
+    http.Response response;
+
+    _isLoading = true;
+    notifyListeners();
+
+    response = await http.post(
+      requestUrls.mainurl + requestUrls.signUp,
+      headers: {'Content-type': "application/json"},
+      body: json.encode(signupData),
+    );
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String message = 'Something went wrong.';
+    bool hasError = true;
+
+    switch (response.statusCode) {
+      case 200:
+        hasError = false;
+        message = '로그인에 성공하였습니다';
+        _authenticatedUser = ClientUser(
+            id: responseData['id'], companyName: responseData['company_name']);
+        prefs.setString('token', responseData['token']);
+        prefs.setString('id', responseData['user_id']);
+        _isLoading = false;
+        break;
+      case 400:
+        hasError = true;
+        message = responseData['message'];
+        _isLoading = false;
+        break;
+    }
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
   }
 }
 

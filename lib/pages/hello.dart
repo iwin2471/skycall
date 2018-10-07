@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+import 'reg.dart';
+import '../models/auth.dart';
+
 class HelloPage extends StatefulWidget {
   @override
   _HelloPageState createState() => _HelloPageState();
@@ -29,30 +32,54 @@ class _HelloPageState extends State<HelloPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            AutoSizeText(
               "처음 사용하시나요?",
               style: new TextStyle(
-                fontSize: 10.0,
+                fontSize: 20.0,
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 35.0),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 FlatButton(
-                  child: Text("발주자로 가입"),
-                  onPressed: () {},
+                  child: AutoSizeText("발주자로 가입"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      new MaterialPageRoute<Map>(
+                        builder: (BuildContext context) {
+                          return RegPage(AuthMode.ClientSignup);
+                        },
+                      ),
+                    );
+                  },
                 ),
                 FlatButton(
-                  child: Text("수주자로 가입"),
-                  onPressed: () {},
+                  child: AutoSizeText("수주자로 가입"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      new MaterialPageRoute<Map>(
+                        builder: (BuildContext context) {
+                          return RegPage(AuthMode.SuppliersSignup);
+                        },
+                      ),
+                    );
+                  },
                 )
               ],
             ),
             FlatButton(
-              child: Text("아뇨 이미 계정이있습니다"),
+              child: Text(
+                "아뇨 이미 계정이있습니다",
+                style: TextStyle(decoration: TextDecoration.underline),
+              ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, "/auth");
+                Navigator.pushNamed(context, "/auth");
               },
             )
           ],

@@ -45,7 +45,7 @@ class _MyAppState extends State<SkyCall> {
               ),
           '/main': (BuildContext context) => MainPage(),
           '/auth': (BuildContext context) => AuthPage(),
-          '/hello': (BuildContext context) => HelloPage(),
+          '/hello': (BuildContext context) => HelloPage()
         },
       ),
     );

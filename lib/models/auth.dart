@@ -1,1 +1,1 @@
-enum AuthMode { Signup, Signin }
+enum AuthMode { ClientSignup, Signin, SuppliersSignup }

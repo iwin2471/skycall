@@ -4,4 +4,4 @@ import './SigninModel.dart';
 import 'BaljuModel.dart';
 
 class MainModel extends Model
-    with AuthUserModel, SigninModel, UtilityModel, BaljuModel {}
+    with AuthUserModel, SigninModel, SignupModel, UtilityModel, BaljuModel {}
