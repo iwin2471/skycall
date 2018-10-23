@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'suju.dart';
-import 'balju.dart';
+import 'mylistpages.dart';
 
-class MainPage extends StatefulWidget {
+class MylistPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _MainPageState();
+    return _MylistPageState();
   }
 }
 
-class _MainPageState extends State<MainPage> {
+class _MylistPageState extends State<MylistPage> {
   String id = "";
 
   void getId() async {
@@ -37,35 +36,6 @@ class _MainPageState extends State<MainPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              DrawerHeader(
-                child: Column(
-                  children: <Widget>[
-                    Text(id),
-                    FlatButton(
-                      child: Text('로그아웃'),
-                      onPressed: () {
-                        logout();
-                        Navigator.pushReplacementNamed(context, '/hello');
-                      },
-                    )
-                  ],
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.indigo,
-                ),
-              ),
-              ListTile(
-                title: Text('나의리스트'),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-              )
-            ],
-          ),
-        ),
         appBar: AppBar(
           title: Text('발주자/수주자 목록'),
           bottom: TabBar(
@@ -80,7 +50,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         body: TabBarView(
-          children: <Widget>[BaljuPage(), SujuPage()],
+          children: <Widget>[MybaljuPage(), MyRequestPage()],
         ),
       ),
     );

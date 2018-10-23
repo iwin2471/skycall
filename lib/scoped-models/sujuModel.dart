@@ -35,4 +35,30 @@ class SujuModel extends Model {
     }
     return responseData;
   }
+
+  Future<Map<String, dynamic>> requestList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token');
+    String url =
+        requestUrls.mainurl + requestUrls.requestsMy + "?token=" + token;
+    print(token);
+    print(url);
+
+    http.Response response;
+    notifyListeners();
+
+    response = await http.get(
+      url,
+    );
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    switch (response.statusCode) {
+      case 200:
+        return responseData;
+        break;
+      case 400:
+        break;
+    }
+    return responseData;
+  }
 }

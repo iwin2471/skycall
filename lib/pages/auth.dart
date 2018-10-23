@@ -58,7 +58,7 @@ class _AuthPageState extends State<AuthPage> {
     successInformation =
         await authenticate(_formData['ID'], _formData['password'], _authMode);
     if (successInformation['success']) {
-      Navigator.of(context).pushNamed('/main');
+      Navigator.of(context).pushReplacementNamed('/main');
     } else {
       showDialog(
         context: context,

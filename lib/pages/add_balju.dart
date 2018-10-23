@@ -13,34 +13,51 @@ class AddBaljuPage extends StatefulWidget {
 
 class _AddBaljuPageSate extends State<AddBaljuPage> {
   final Map<String, dynamic> _formData = {
-    "user_type": null, //유저 타입 지정 0발주 1 수주
-    "user_id": null, //아이디
-    "password": null, //비번
-    "phone": null, //전화번호
-    "company_number": null, //사업자 번호
-
-// Client
-    "company_name": null, //사업장 명
-
-// Supplier
-    "nickname": null, //별명
-    "job_start_date": null, //일시작한 날짜
-    "reachable_height": null, //작업 가능 높이
-    "location": 0,
-    "acceptTerms": false
+    "title": null,
+    "location": null,
+    "work_start_date": null,
+    "work_end_date": null,
+    "max_supplier": null,
+    "writer": null,
+    "token": null,
   };
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final dateFormat = DateFormat("yyy MMM d");
-  final TextEditingController _passwordTextController = TextEditingController();
   List<String> _values;
   String _value;
 
   String label;
+  String label2;
   TextEditingController txt = new TextEditingController();
+  TextEditingController txt2 = new TextEditingController();
   DateTime _date = new DateTime.now();
 
-  Future _selectDate(BuildContext context) async {
+  Widget _buildWorkingNameTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+          labelText: '작업명', filled: true, fillColor: Colors.white),
+      keyboardType: TextInputType.emailAddress,
+      onSaved: (String value) {
+        _formData['title'] = value;
+      },
+    );
+  }
+
+  Widget _buildMaxSupplier() {
+    return TextFormField(
+      decoration: InputDecoration(
+          labelText: '작업자수', filled: true, fillColor: Colors.white),
+      keyboardType: TextInputType.number,
+      onSaved: (String value) {
+        num maxSupplier = int.parse(value);
+        _formData['max_supplier'] = maxSupplier;
+      },
+    );
+  }
+
+  Future _selectDate(
+      BuildContext context, int number, TextEditingController txt) async {
     DateTime picked = await showDatePicker(
       context: context,
       initialDate: _date,
@@ -49,105 +66,12 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
     );
     if (picked != null) {
       setState(() {
-        label = picked.toString();
-        txt.text = label.split(" ")[0];
+        number == 0 ? label = picked.toString() : label2 = picked.toString();
+        number == 0
+            ? txt.text = label.split(" ")[0]
+            : txt2.text = label2.split(" ")[0];
       });
     }
-  }
-
-  Widget _buildEmailTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '아이디', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.emailAddress,
-      onSaved: (String value) {
-        _formData['user_id'] = value;
-      },
-    );
-  }
-
-  Widget _buildPasswordTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '비밀번호', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      controller: _passwordTextController,
-      validator: (String value) {
-        if (value.isEmpty || value.length < 0) {
-          return '비밀번호는 빈칸이될수없습니다';
-        }
-      },
-      onSaved: (String value) {
-        _formData['password'] = value;
-      },
-    );
-  }
-
-  Widget _buildPasswordConfirmTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '비밀번호 확인', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      validator: (String value) {
-        if (_passwordTextController.text != value) {
-          return '비밀번호가 일치하지않습니다';
-        }
-      },
-    );
-  }
-
-  Widget _buildPhone() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '연락처', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.number,
-      onSaved: (String value) {
-        _formData['phone'] = value;
-      },
-    );
-  }
-
-  Widget _buildCompanynum() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '사업자 등록번호', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.number,
-      onSaved: (String value) {
-        num company_number = int.parse(value);
-        _formData['company_number'] = company_number;
-      },
-    );
-  }
-
-  Widget _buildNickname() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '별명', filled: true, fillColor: Colors.white),
-      onSaved: (String value) {
-        _formData['nickname'] = value;
-      },
-    );
-  }
-
-  Widget _buildCompanyName() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '사업장 명', filled: true, fillColor: Colors.white),
-      onSaved: (String value) {
-        _formData['company_name'] = value;
-      },
-    );
-  }
-
-  Widget _buildMaxReachableHeight() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: '작업 가능 높이(미터)', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.number,
-      onSaved: (String value) {
-        _formData['reachable_height'] = value;
-      },
-    );
   }
 
   Widget _buildWorkPlace(BuildContext context) {
@@ -177,43 +101,22 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
     );
   }
 
-  Widget _buildAcceptSwitch() {
-    return Row(
-      children: <Widget>[
-        Text('이용약관 동의'),
-        Checkbox(
-          value: _formData['acceptTerms'],
-          onChanged: (bool value) {
-            setState(() {
-              _formData['acceptTerms'] = value;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  void _submitForm(Function signup, num usertype) async {
-    _formData['user_type'] = usertype;
-
-    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) return;
-
+  void _submitForm(Function order) async {
     _formKey.currentState.save();
-    Map<String, dynamic> successInformation = await signup(_formData);
+    Map<String, dynamic> successInformation = await order(_formData);
 
     if (successInformation['success']) {
-      Navigator.pushReplacementNamed(context, '/main');
-    } else {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('회원가입에 실패하였습니다.'),
-            content: Text(successInformation['message']),
+            title: Text('발주 성공!'),
+            content: Text('발주에 성공하였습니다'),
             actions: <Widget>[
               FlatButton(
-                child: Text('Okay'),
+                child: Text('확인'),
                 onPressed: () {
+                  Navigator.of(context).pop();
                   Navigator.of(context).pop();
                 },
               )
@@ -237,7 +140,7 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
 
     return Scaffold(
-      appBar: AppBar(title: Text('')),
+      appBar: AppBar(title: Text('발주하기')),
       body: Container(
         padding: EdgeInsets.all(10.0),
         child: Center(
@@ -248,33 +151,8 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: deviceWidth * 80 / 100,
-                          child: TextFormField(
-                            controller: txt,
-                            decoration: InputDecoration(
-                                hintText: "사업 시작일",
-                                labelText: label,
-                                filled: true,
-                                fillColor: Colors.white),
-                            keyboardType: TextInputType.number,
-                            onSaved: (String value) {
-                              _formData['job_start_date'] = value;
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () {
-                            _selectDate(context);
-                          },
-                        )
-                      ],
-                    ),
-                    Text("오른쪽의 달력표시를 눌러 날짜를 입력해주세요."),
-                    Text("생각나지 않는 경우, '일'은 정확하지 않아도 됩니다."),
+                    _buildWorkingNameTextField(),
+                    _buildMaxSupplier(),
                     Row(
                       children: <Widget>[
                         Container(
@@ -284,7 +162,57 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
                         _buildWorkPlace(context),
                       ],
                     ),
-                    _buildAcceptSwitch(),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: deviceWidth * 80 / 100,
+                          child: TextFormField(
+                            controller: txt,
+                            decoration: InputDecoration(
+                                hintText: "작업 시작일",
+                                labelText: label,
+                                filled: true,
+                                fillColor: Colors.white),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              _formData['work_start_date'] = value;
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () {
+                            _selectDate(context, 0, txt);
+                          },
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: deviceWidth * 80 / 100,
+                          child: TextFormField(
+                            controller: txt2,
+                            decoration: InputDecoration(
+                                hintText: "작업 종료일",
+                                labelText: label2,
+                                filled: true,
+                                fillColor: Colors.white),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              _formData['work_end_date'] = value;
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () {
+                            _selectDate(context, 1, txt2);
+                          },
+                        )
+                      ],
+                    ),
+                    Text("오른쪽의 달력표시를 눌러 날짜를 입력해주세요."),
                     SizedBox(
                       height: 10.0,
                     ),
@@ -298,8 +226,8 @@ class _AddBaljuPageSate extends State<AddBaljuPage> {
                             ? CircularProgressIndicator()
                             : RaisedButton(
                                 textColor: Colors.white,
-                                child: Text('회원가입'),
-                                onPressed: () => _submitForm(model.signUp, 1),
+                                child: Text('발주하기'),
+                                onPressed: () => _submitForm(model.order),
                               );
                       },
                     ),

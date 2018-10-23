@@ -60,7 +60,7 @@ class _MainPageState extends State<MainPage> {
               ListTile(
                 title: Text('나의리스트'),
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, '/');
+                  Navigator.pushNamed(context, '/my');
                 },
               )
             ],

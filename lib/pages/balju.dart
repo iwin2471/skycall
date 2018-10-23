@@ -126,7 +126,9 @@ class _BaljuPageState extends State<BaljuPage> {
             listView(context, item),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, "/add/balju");
+        },
         child: Icon(Icons.add),
       ),
     );

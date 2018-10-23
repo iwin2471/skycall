@@ -79,4 +79,28 @@ class BaljuModel extends Model {
     }
     return responseData;
   }
+
+  Future<Map<String, dynamic>> order(Map<String, dynamic> orderData) async {
+    http.Response response;
+    notifyListeners();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    orderData["token"] = prefs.getString("token");
+
+    response = await http.post(
+      requestUrls.mainurl + requestUrls.order,
+      headers: {'Content-type': "application/json"},
+      body: json.encode(orderData),
+    );
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    switch (response.statusCode) {
+      case 200:
+        return {"success": true};
+        break;
+      case 400:
+        return responseData;
+        break;
+    }
+    return responseData;
+  }
 }

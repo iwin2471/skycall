@@ -6,6 +6,8 @@ import './pages/auth.dart';
 import './pages/main.dart';
 import './pages/hello.dart';
 import './scoped-models/main.dart';
+import './pages/add_balju.dart';
+import './pages/mylist.dart';
 
 void main() => runApp(SkyCall());
 
@@ -46,7 +48,8 @@ class _MyAppState extends State<SkyCall> {
           '/main': (BuildContext context) => MainPage(),
           '/auth': (BuildContext context) => AuthPage(),
           '/hello': (BuildContext context) => HelloPage(),
-          // '/my': ();
+          '/my': (BuildContext context) => MylistPage(),
+          '/add/balju': (BuildContext context) => AddBaljuPage()
         },
       ),
     );
