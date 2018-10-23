@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../scoped-models/main.dart';
 import '../models/area.dart';
+import '../widget/dialog.dart';
+import '../scoped-models/main.dart';
 
 class BaljuPage extends StatefulWidget {
   @override
@@ -9,6 +11,7 @@ class BaljuPage extends StatefulWidget {
 }
 
 class _BaljuPageState extends State<BaljuPage> {
+  MainModel model;
   Map<String, dynamic> list = {
     "orders": [
       {
@@ -33,8 +36,9 @@ class _BaljuPageState extends State<BaljuPage> {
     ]
   };
   int length = 1;
+  int userType;
 
-  Widget listView(int item) {
+  Widget listView(BuildContext context, int item) {
     DateTime t = DateTime.parse(list["orders"][item]["write_datetime"]);
     return ListTile(
       title: Text(
@@ -51,7 +55,54 @@ class _BaljuPageState extends State<BaljuPage> {
           )
         ],
       ),
-      onTap: () {},
+      onTap: () {
+        if (userType == 1) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return MyAlertDialog(
+                title: Text("섭외 요청"),
+                content: Container(
+                  height: 100.0,
+                  alignment: Alignment.centerLeft,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: <Widget>[
+                      Text(
+                        "사업장명",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "list['suppliers'][item]",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                            hintText: "한 줄 자기 소개",
+                            filled: true,
+                            fillColor: Colors.white),
+                        onSaved: (String value) {},
+                      ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('취소'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('섭외 요청'),
+                    onPressed: () {},
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      },
     );
   }
 
@@ -71,7 +122,12 @@ class _BaljuPageState extends State<BaljuPage> {
     return Scaffold(
       body: ListView.builder(
         itemCount: length,
-        itemBuilder: (BuildContext context, int item) => listView(item),
+        itemBuilder: (BuildContext context, int item) =>
+            listView(context, item),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -79,6 +135,8 @@ class _BaljuPageState extends State<BaljuPage> {
   void getlist() async {
     final MainModel model = new MainModel();
     final Map<String, dynamic> returnedList = await model.getList();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    userType = prefs.getInt("userType");
     if (mounted) {
       setState(() {
         list = returnedList;

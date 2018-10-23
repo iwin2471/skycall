@@ -6,9 +6,9 @@ class RequestUrls {
   final String request = "/api/requests";
   final String requestAccpt = "/api/requests/accept";
   final String requestReject = "/api/requests/reject";
-  final String requestsMy = "/api/requests/my";
+  final String requestsMy = "/api/orders/my";
 
   String get mainurl {
-    return "http://13.124.142.187:3000";
+    return "http://iwin247.kr:3000";
   }
 }

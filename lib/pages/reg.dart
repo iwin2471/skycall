@@ -21,17 +21,16 @@ class _RegPageState extends State<RegPage> {
     "password": null, //비번
     "phone": null, //전화번호
     "company_number": null, //사업자 번호
+
 // Client
     "company_name": null, //사업장 명
 
 // Supplier
     "nickname": null, //별명
-
     "job_start_date": null, //일시작한 날짜
-
     "reachable_height": null, //작업 가능 높이
-
-    "location": null
+    "location": 0,
+    "acceptTerms": false
   };
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -108,7 +107,7 @@ class _RegPageState extends State<RegPage> {
     return TextFormField(
       decoration: InputDecoration(
           labelText: '연락처', filled: true, fillColor: Colors.white),
-      obscureText: true,
+      keyboardType: TextInputType.number,
       onSaved: (String value) {
         _formData['phone'] = value;
       },
@@ -119,7 +118,9 @@ class _RegPageState extends State<RegPage> {
     return TextFormField(
       decoration: InputDecoration(
           labelText: '사업자 등록번호', filled: true, fillColor: Colors.white),
-      onSaved: (num company_number) {
+      keyboardType: TextInputType.number,
+      onSaved: (String value) {
+        num company_number = int.parse(value);
         _formData['company_number'] = company_number;
       },
     );
@@ -129,7 +130,6 @@ class _RegPageState extends State<RegPage> {
     return TextFormField(
       decoration: InputDecoration(
           labelText: '별명', filled: true, fillColor: Colors.white),
-      obscureText: true,
       onSaved: (String value) {
         _formData['nickname'] = value;
       },
@@ -140,9 +140,8 @@ class _RegPageState extends State<RegPage> {
     return TextFormField(
       decoration: InputDecoration(
           labelText: '사업장 명', filled: true, fillColor: Colors.white),
-      obscureText: true,
       onSaved: (String value) {
-        _formData['companyname'] = value;
+        _formData['company_name'] = value;
       },
     );
   }
@@ -151,14 +150,15 @@ class _RegPageState extends State<RegPage> {
     return TextFormField(
       decoration: InputDecoration(
           labelText: '작업 가능 높이(미터)', filled: true, fillColor: Colors.white),
+      keyboardType: TextInputType.number,
       onSaved: (String value) {
-        _formData['reachableheight'] = value;
+        _formData['reachable_height'] = value;
       },
     );
   }
 
   Widget _buildWorkPlace(BuildContext context) {
-    return new DropdownButton<String>(
+    return DropdownButton<String>(
       value: _value,
       items: _values.map((String value) {
         return new DropdownMenuItem(
@@ -167,7 +167,16 @@ class _RegPageState extends State<RegPage> {
         );
       }).toList(),
       onChanged: (String value) {
-        _formData['reachableheight'] = value;
+        Map<String, num> locationToNum = {
+          '서울특별시': 0,
+          '경기도': 1,
+          '강원도': 2,
+          '충청도': 3,
+          '경상도': 4,
+          '전라도': 5,
+          '제주특별자치도': 6
+        };
+        _formData['location'] = locationToNum[value];
         setState(() {
           _value = value;
         });
@@ -176,25 +185,28 @@ class _RegPageState extends State<RegPage> {
   }
 
   Widget _buildAcceptSwitch() {
-    return SwitchListTile(
-      value: _formData['acceptTerms'],
-      onChanged: (bool value) {
-        setState(() {
-          _formData['acceptTerms'] = value;
-        });
-      },
-      title: Text('Accept Terms'),
+    return Row(
+      children: <Widget>[
+        Text('이용약관 동의'),
+        Checkbox(
+          value: _formData['acceptTerms'],
+          onChanged: (bool value) {
+            setState(() {
+              _formData['acceptTerms'] = value;
+            });
+          },
+        ),
+      ],
     );
   }
 
-  void _submitForm(Function signup, bool usertype) async {
+  void _submitForm(Function signup, num usertype) async {
     _formData['user_type'] = usertype;
 
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) return;
 
     _formKey.currentState.save();
-    Map<String, dynamic> successInformation;
-    successInformation = await signup(_formData);
+    Map<String, dynamic> successInformation = await signup(_formData);
 
     if (successInformation['success']) {
       Navigator.pushReplacementNamed(context, '/main');
@@ -223,18 +235,19 @@ class _RegPageState extends State<RegPage> {
   void initState() {
     super.initState();
     _values = ['서울특별시', '경기도', '강원도', '충청도', '경상도', '전라도', '제주특별자치도'];
-    _value = "활동 지역을 선택해주세요";
+    _value = _values[0];
   }
 
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
+
     if (_authMode == AuthMode.SuppliersSignup) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('회원가입'),
-        ),
+            title: Text(
+                '${_authMode == AuthMode.ClientSignup ? '발주회원가입' : '수주회원가입'}')),
         body: Container(
           padding: EdgeInsets.all(10.0),
           child: Center(
@@ -257,21 +270,24 @@ class _RegPageState extends State<RegPage> {
                       SizedBox(
                         height: 10.0,
                       ),
+                      _buildPhone(),
                       _buildCompanynum(),
                       _buildNickname(),
                       _buildMaxReachableHeight(),
                       Row(
                         children: <Widget>[
                           Container(
-                            width: deviceWidth / 2,
+                            width: deviceWidth * 80 / 100,
                             child: TextFormField(
                               controller: txt,
                               decoration: InputDecoration(
+                                  hintText: "사업 시작일",
                                   labelText: label,
                                   filled: true,
                                   fillColor: Colors.white),
+                              keyboardType: TextInputType.number,
                               onSaved: (String value) {
-                                _formData['reachableheight'] = value;
+                                _formData['job_start_date'] = value;
                               },
                             ),
                           ),
@@ -283,7 +299,17 @@ class _RegPageState extends State<RegPage> {
                           )
                         ],
                       ),
-                      _buildWorkPlace(context),
+                      Text("오른쪽의 달력표시를 눌러 날짜를 입력해주세요."),
+                      Text("생각나지 않는 경우, '일'은 정확하지 않아도 됩니다."),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            child: Text("활동지역을 선택해주세요:"),
+                          ),
+                          _buildWorkPlace(context),
+                        ],
+                      ),
                       _buildAcceptSwitch(),
                       SizedBox(
                         height: 10.0,
@@ -310,7 +336,7 @@ class _RegPageState extends State<RegPage> {
                               : RaisedButton(
                                   textColor: Colors.white,
                                   child: Text('회원가입'),
-                                  onPressed: () => _submitForm(model.signUp),
+                                  onPressed: () => _submitForm(model.signUp, 1),
                                 );
                         },
                       ),
@@ -325,7 +351,8 @@ class _RegPageState extends State<RegPage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text('회원가입'),
+          title: Text(
+              '${_authMode == AuthMode.ClientSignup ? '발주회원가입' : '수주회원가입'}'),
         ),
         body: Container(
           padding: EdgeInsets.all(10.0),
@@ -378,7 +405,7 @@ class _RegPageState extends State<RegPage> {
                               : RaisedButton(
                                   textColor: Colors.white,
                                   child: Text('회원가입'),
-                                  onPressed: () => _submitForm(model.signUp),
+                                  onPressed: () => _submitForm(model.signUp, 0),
                                 );
                         },
                       ),

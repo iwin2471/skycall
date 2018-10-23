@@ -50,10 +50,13 @@ class SigninModel extends AuthUserModel {
       case 200:
         hasError = false;
         message = '로그인에 성공하였습니다';
-        _authenticatedUser = ClientUser(
-            id: responseData['id'], companyName: responseData['company_name']);
-        prefs.setString('token', responseData['token']);
+        int usertype = responseData["user"]["user_type"];
+        _authenticatedUser =
+            ClientUser(id: responseData['id'], userType: usertype);
+        prefs.setInt("userType", usertype);
         prefs.setString('id', id);
+        prefs.setString('token', responseData['token']);
+        prefs.setString('_id', responseData['user']['_id']);
         _isLoading = false;
         break;
       case 400:
@@ -76,14 +79,6 @@ class SigninModel extends AuthUserModel {
       notifyListeners();
     }
   }
-}
-
-class SignupModel extends AuthUserModel {
-  RequestUrls requestUrls = new RequestUrls();
-
-  ClientUser get user {
-    return _authenticatedUser;
-  }
 
   Future<Map<String, dynamic>> signUp(Map<String, dynamic> signupData) async {
     http.Response response;
@@ -98,18 +93,14 @@ class SignupModel extends AuthUserModel {
     );
 
     final Map<String, dynamic> responseData = json.decode(response.body);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
     String message = 'Something went wrong.';
     bool hasError = true;
 
     switch (response.statusCode) {
       case 200:
         hasError = false;
-        message = '로그인에 성공하였습니다';
-        _authenticatedUser = ClientUser(
-            id: responseData['id'], companyName: responseData['company_name']);
-        prefs.setString('token', responseData['token']);
-        prefs.setString('id', responseData['user_id']);
+        message = '회원가입에 성공하였습니다';
+        await authenticate(signupData["user_id"], signupData["password"]);
         _isLoading = false;
         break;
       case 400:
